@@ -1,6 +1,5 @@
 import { type FC, Suspense } from "react";
 import LogoLink from "app/components/LogoLink";
-import VoiceSelector from "app/components/VoiceSelector/VoiceSelector";
 
 interface Props {
   logoHref: string;
@@ -21,11 +20,7 @@ const Header: FC<Props> = ({ logoHref }) => {
         <div className="flex-1 md:block hidden text-center">
           <h2 className="h-10 leading-10 font-favorit align-middle text-gray-25">{title}</h2>
         </div>
-        <div className="flex-1">
-          <Suspense>
-            <VoiceSelector className="flex justify-end items-center" showLabel />
-          </Suspense>
-        </div>
+        <div className="flex-1"></div>
       </header>
     </>
   );

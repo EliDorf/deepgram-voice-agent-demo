@@ -12,7 +12,6 @@ import { CaretIcon } from "./components/icons/CaretIcon";
 import { withBasePath } from "./utils/deepgramUtils";
 import PromptSuggestions from "./components/PromptSuggestions";
 import Conversation from "./components/Conversation";
-import VoiceSelector from "./components/VoiceSelector/VoiceSelector";
 import { isMobile } from "react-device-detect";
 import PopupButton from "./components/PopupButton";
 import MobileMenu from "./components/MobileMenu";
@@ -157,12 +156,8 @@ export default function Home() {
         )}
       </div>
 
-      {/* Mobile Voice Selector */}
+      {/* Mobile Menu */}
       <Suspense>
-        <VoiceSelector
-          className={`absolute md:hidden bottom-0 left-0 pb-[16px] pl-[16px]`}
-          collapsible
-        />
         <MobileMenu className="fixed md:hidden bottom-4 right-4 text-gray-200" />
       </Suspense>
     </main>
