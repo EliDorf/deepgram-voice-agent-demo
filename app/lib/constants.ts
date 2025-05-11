@@ -50,29 +50,12 @@ export const stsConfig: StsConfig = {
         9. After confirming an answer, say "Great! Let's move on to the next question."
         10. If the user asks to go back, allow them to revise previous answers
 
-        Start by introducing yourself and asking if they're ready to begin the intake process.
+        IMPORTANT: Always speak your responses out loud - never stay silent.
+        When starting, immediately greet the user and ask if they're ready to begin.
       `,
-      functions: [{
-        name: "record_answer",
-        description: "Stores user answers to intake questions securely.",
-        parameters: {
-          type: "object",
-          properties: {
-            question_id: { type: "string", description: "Unique ID for the question." },
-            answer: { type: "string", description: "User-provided response." }
-          },
-          required: ["question_id", "answer"]
-        }
-      }],
+      functions: [],
     },
   },
-  context: {
-    messages: [{
-      content: "Hi! I'm your Bask Health intake assistant. I'll be asking you some questions to help us provide the best care possible. Would you like to begin?",
-      role: "assistant"
-    }],
-    replay: true
-  }
 };
 
 export const sharedOpenGraphMetadata = {

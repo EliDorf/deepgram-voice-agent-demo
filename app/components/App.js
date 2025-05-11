@@ -50,6 +50,7 @@ export const App = ({
   const previousInstructions = usePrevious(instructions);
   const scheduledAudioSources = useRef([]);
   const pathname = usePathname();
+  const hasStartedRef = useRef(false);
 
   useEffect(() => {
     if (!audioContext.current) {
@@ -110,6 +111,7 @@ export const App = ({
         sendSocketMessage(socket, combinedStsConfig);
         startMicrophone();
         startListening(true);
+        hasStartedRef.current = true;
       };
 
       socket.addEventListener("open", onOpen);
