@@ -1,4 +1,4 @@
-import { type AudioConfig, type StsConfig, type Voice } from "app/utils/deepgramUtils";
+import { type AudioConfig, type StsConfig } from "app/utils/deepgramUtils";
 import { type Question } from "./questions";
 
 const audioConfig: AudioConfig = {
@@ -68,34 +68,6 @@ export const stsConfig: StsConfig = {
     replay: true
   }
 };
-
-// Voice constants
-const voiceAsteria: Voice = {
-  name: "Asteria",
-  canonical_name: "aura-asteria-en",
-  metadata: {
-    accent: "American",
-    gender: "Female",
-    image: "https://static.deepgram.com/examples/avatars/asteria.jpg",
-    color: "#7800ED",
-    sample: "https://static.deepgram.com/examples/voices/asteria.wav",
-  },
-};
-
-const voiceOrion: Voice = {
-  name: "Orion",
-  canonical_name: "aura-orion-en",
-  metadata: {
-    accent: "American",
-    gender: "Male",
-    image: "https://static.deepgram.com/examples/avatars/orion.jpg",
-    color: "#83C4FB",
-    sample: "https://static.deepgram.com/examples/voices/orion.mp3",
-  },
-};
-
-export const availableVoices = [voiceAsteria, voiceOrion] as const;
-export const defaultVoice: Voice = availableVoices[0];
 
 export const sharedOpenGraphMetadata = {
   title: "Patient Intake Assistant | Bask Health",
