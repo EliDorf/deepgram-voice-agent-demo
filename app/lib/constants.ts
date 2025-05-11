@@ -3,7 +3,7 @@ import { type AudioConfig, type StsConfig, type Voice } from "app/utils/deepgram
 const audioConfig: AudioConfig = {
   input: {
     encoding: "linear16",
-    sample_rate: 48000
+    sample_rate: 16000
   },
   output: {
     encoding: "linear16",
