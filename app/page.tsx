@@ -12,7 +12,6 @@ import { CaretIcon } from "./components/icons/CaretIcon";
 import { withBasePath } from "./utils/deepgramUtils";
 import PromptSuggestions from "./components/PromptSuggestions";
 import Conversation from "./components/Conversation";
-import VoiceSelector from "./components/VoiceSelector/VoiceSelector";
 import { isMobile } from "react-device-detect";
 import PopupButton from "./components/PopupButton";
 import MobileMenu from "./components/MobileMenu";
@@ -61,7 +60,6 @@ export default function Home() {
         </div>
 
         <div className="flex flex-grow relative">
-          {/* Main Content */}
           <div className="flex-1 flex justify-center items-start md:items-center">
             <div className="md:h-full flex flex-col min-w-[80vw] md:min-w-[30vw] max-w-[80vw] justify-center">
               <div className="flex md:order-last md:mt-4 justify-center">
@@ -74,7 +72,6 @@ export default function Home() {
                   requiresUserActionToInitialize={isMobile}
                 />
               </Suspense>
-              {/* Desktop Conversation Toggle */}
               {has4ConversationMessages ? (
                 <div className="hidden md:flex justify-center mt-auto mb-4 md:mt-4 text-gray-350">
                   <button className="text-[14px] text-gray-350 py-4" onClick={toggleConversation}>
@@ -83,18 +80,15 @@ export default function Home() {
                 </div>
               ) : null}
 
-              {/* Speech Bubbles */}
               {!has4ConversationMessages &&
                 !rateLimited &&
                 status !== VoiceBotStatus.SLEEPING &&
                 status !== VoiceBotStatus.NONE && (
                   <div>
-                    {/* Desktop */}
                     <div className="hidden md:flex justify-center text-gray-450">Try saying:</div>
                     <div className="hidden md:grid max-w-max mx-auto grid-cols-3 gap-4 mt-6 relative">
                       <PromptSuggestions />
                     </div>
-                    {/* Mobile */}
                     <div className="flex md:hidden justify-center text-gray-450 mt-2">
                       Try saying:
                     </div>
@@ -106,7 +100,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right Panel (Desktop only) */}
           <div
             className="hidden md:block p-6 pl-0 max-h-screen overflow-hidden"
             style={{ zIndex: 11 }}
@@ -131,10 +124,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Conversation */}
       {conversationOpen && <Conversation toggleConversation={toggleConversation} />}
 
-      {/* Desktop Bottom Stuff */}
       <div className={`hidden md:flex z-0 absolute bottom-0 left-8 right-[320px] mb-8`}>
         <div className="space-y-4">
           <Suspense>
@@ -146,7 +137,6 @@ export default function Home() {
         </Suspense>
       </div>
 
-      {/* Mobile Bottom Stuff */}
       <div className={`flex flex-col z-0 items-center md:hidden`}>
         {has4ConversationMessages && (
           <div className="flex justify-center mt-auto text-gray-350">
@@ -157,12 +147,7 @@ export default function Home() {
         )}
       </div>
 
-      {/* Mobile Voice Selector */}
       <Suspense>
-        <VoiceSelector
-          className={`absolute md:hidden bottom-0 left-0 pb-[16px] pl-[16px]`}
-          collapsible
-        />
         <MobileMenu className="fixed md:hidden bottom-4 right-4 text-gray-200" />
       </Suspense>
     </main>

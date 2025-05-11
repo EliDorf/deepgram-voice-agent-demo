@@ -17,7 +17,7 @@ const baseConfig = {
   audio: audioConfig,
   agent: {
     listen: { model: "nova-3" },
-    speak: { model: "aura-asteria-en" },
+    speak: { model: "aura-2-thalia-en" },
     think: {
       provider: { type: "open_ai" },
       model: "gpt-4o",
@@ -47,34 +47,6 @@ Start by introducing yourself and asking how you can help.`,
     replay: true
   }
 };
-
-// Voice constants
-const voiceAsteria: Voice = {
-  name: "Asteria",
-  canonical_name: "aura-asteria-en",
-  metadata: {
-    accent: "American",
-    gender: "Female",
-    image: "https://static.deepgram.com/examples/avatars/asteria.jpg",
-    color: "#7800ED",
-    sample: "https://static.deepgram.com/examples/voices/asteria.wav",
-  },
-};
-
-const voiceOrion: Voice = {
-  name: "Orion",
-  canonical_name: "aura-orion-en",
-  metadata: {
-    accent: "American",
-    gender: "Male",
-    image: "https://static.deepgram.com/examples/avatars/orion.jpg",
-    color: "#83C4FB",
-    sample: "https://static.deepgram.com/examples/voices/orion.mp3",
-  },
-};
-
-export const availableVoices = [voiceAsteria, voiceOrion] as const;
-export const defaultVoice: Voice = availableVoices[0];
 
 export const sharedOpenGraphMetadata = {
   title: "Voice Agent | Deepgram",
