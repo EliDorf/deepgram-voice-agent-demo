@@ -1,11 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { patientIntakeQuestions, type Question } from '../lib/questions';
 import { useVoiceBot, VoiceBotStatus } from '../context/VoiceBotContextProvider';
 
 export default function QuestionnaireManager() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const { status } = useVoiceBot();
+  const { status, messages } = useVoiceBot();
   const currentQuestion = patientIntakeQuestions[currentQuestionIndex];
+
+  // Listen for user responses and advance questions
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.assistant?.includes("Great") || lastMessage?.assistant?.includes("Thank you")) {
+      // Wait briefly before advancing to next question
+      const timer = setTimeout(() => {
+        setCurrentQuestionIndex(prev => Math.min(patientIntakeQuestions.length - 1, prev + 1));
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [messages]);
 
   const getStatusText = () => {
     switch (status) {
@@ -16,7 +28,7 @@ export default function QuestionnaireManager() {
       case VoiceBotStatus.SPEAKING:
         return "Speaking...";
       case VoiceBotStatus.SLEEPING:
-        return "Click to start";
+        return "Click the orb to start";
       default:
         return "Ready to begin";
     }
@@ -35,6 +47,9 @@ export default function QuestionnaireManager() {
             ))}
           </div>
         )}
+        <div className="mt-4 text-sm text-gray-450">
+          {question.type === 'multiple_choice' ? 'Please choose one of the options above' : 'Please provide your answer'}
+        </div>
       </div>
     );
   };
@@ -48,8 +63,11 @@ export default function QuestionnaireManager() {
       
       {renderQuestion(currentQuestion)}
       
-      <div className="text-center text-gray-450">
-        <p>{getStatusText()}</p>
+      <div className="text-center">
+        <p className="text-gray-450">{getStatusText()}</p>
+        {status === VoiceBotStatus.SLEEPING && (
+          <p className="text-sm text-gray-450 mt-2">The assistant will guide you through each question</p>
+        )}
       </div>
 
       <div className="flex justify-between w-full max-w-2xl">
