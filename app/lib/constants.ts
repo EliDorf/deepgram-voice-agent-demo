@@ -39,6 +39,38 @@ export const stsConfig: StsConfig = {
     think: {
       ...baseConfig.agent.think,
       provider: { type: "open_ai" },
+      functions: [
+        {
+          name: "savePatientResponse",
+          description: "Save a patient's response to a question",
+          url: "/api/save-response",
+          method: "POST",
+          headers: [
+            {
+              key: "Content-Type",
+              value: "application/json"
+            }
+          ],
+          parameters: {
+            type: "object",
+            properties: {
+              question: {
+                type: "string",
+                description: "The question being asked"
+              },
+              answer: {
+                type: "string",
+                description: "The patient's answer"
+              },
+              questionType: {
+                type: "string",
+                description: "Type of question (multiple_choice or open_ended)"
+              }
+            },
+            required: ["question", "answer", "questionType"]
+          }
+        }
+      ],
       instructions: `You are an AI Patient Intake Assistant created by Bask Health, meeting with potential patients to smoothly guide them through a set of important questions and encourage them to complete the checkout process efficiently.
 
 Patient Intake Questions:
@@ -59,6 +91,8 @@ Interaction Guidelines:
 5. After completing all questions, concisely summarize their responses to confirm accuracy.
 6. Guide the patient to complete the checkout process, clearly explaining each step and addressing any questions or concerns they may have.
 7. Thank the patient warmly for their cooperation and reassure them their information will be securely and confidentially stored.
+
+IMPORTANT: After each patient response, use the savePatientResponse function to record their answer. Always include both the question asked and their response.
 
 Maintain a friendly, comforting, and patient-focused tone to ensure the patient feels cared for and at ease throughout the interaction.`,
     },
