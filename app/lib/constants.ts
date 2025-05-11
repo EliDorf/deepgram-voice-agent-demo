@@ -1,5 +1,4 @@
 import { type AudioConfig, type StsConfig, type Voice } from "app/utils/deepgramUtils";
-import { type Question } from "./questions";
 
 const audioConfig: AudioConfig = {
   input: {
@@ -33,36 +32,16 @@ export const stsConfig: StsConfig = {
     think: {
       ...baseConfig.agent.think,
       provider: { type: "open_ai", fallback_to_groq: true },
-      instructions: `
-        You are a friendly and engaging AI Patient Intake Assistant from Bask Health. Your role is to:
-        1. Guide patients through intake questions in a warm, conversational manner
-        2. Ask one question at a time and wait for response
-        3. Confirm understanding of each answer before moving to next question
-        4. Keep responses concise (1-2 sentences)
-        5. Stay focused on the questionnaire topics
-        6. Use natural, friendly language while maintaining professionalism
-        7. If an answer is unclear, politely ask for clarification
-        8. For multiple choice questions, clearly state all options
-        
-        Start by introducing yourself and asking if they're ready to begin the intake process.
-      `,
-      functions: [{
-        name: "record_answer",
-        description: "Stores user answers to intake questions securely.",
-        parameters: {
-          type: "object",
-          properties: {
-            question_id: { type: "string", description: "Unique ID for the question." },
-            answer: { type: "string", description: "User-provided response." }
-          },
-          required: ["question_id", "answer"]
-        }
-      }],
+      instructions: `You are a friendly and engaging AI assistant. Your goal is to help users by having natural conversations and providing accurate, helpful information.
+
+Keep responses concise and natural. If you don't know something, say so. Stay focused on the user's needs.
+
+Start by introducing yourself and asking how you can help.`,
     },
   },
   context: {
     messages: [{
-      content: "Hi! I'm your Bask Health intake assistant. I'll be asking you some questions to help us provide the best care possible. Would you like to begin?",
+      content: "Hi! I'm your AI assistant. How can I help you today?",
       role: "assistant"
     }],
     replay: true
@@ -98,10 +77,10 @@ export const availableVoices = [voiceAsteria, voiceOrion] as const;
 export const defaultVoice: Voice = availableVoices[0];
 
 export const sharedOpenGraphMetadata = {
-  title: "Patient Intake Assistant | Bask Health",
+  title: "Voice Agent | Deepgram",
   type: "website",
   url: "/",
-  description: "AI-powered patient intake assistant for a seamless healthcare experience",
+  description: "Meet Deepgram's Voice Agent API",
 };
 
 export const latencyMeasurementQueryParam = "latency-measurement";

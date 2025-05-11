@@ -1,5 +1,5 @@
 {
-  "name": "patient-intake-assistant",
+  "name": "deepgram-voice-agent-demo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -13,19 +13,16 @@
     "@deepgram/sdk": "^3.5.1",
     "@lottiefiles/react-lottie-player": "^3.5.3",
     "@react-hook/resize-observer": "^2.0.2",
-    "@supabase/supabase-js": "^2.39.8",
     "@uidotdev/usehooks": "^2.4.1",
     "next": "14.2.18",
     "react": "^18",
     "react-device-detect": "^2.2.3",
     "react-dom": "^18",
-    "sass": "^1.77.8",
-    "uuid": "^9.0.1"
+    "sass": "^1.77.8"
   },
   "devDependencies": {
     "@types/node": "20.14.10",
     "@types/react": "18.3.4",
-    "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^7.16.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^8",
