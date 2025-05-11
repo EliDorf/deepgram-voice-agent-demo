@@ -56,7 +56,8 @@ export const App = ({
   const previousInstructions = usePrevious(instructions);
   const scheduledAudioSources = useRef([]);
   const pathname = usePathname();
-  const currentQuestionIndex = useRef(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [isQuestionnaireComplete, setIsQuestionnaireComplete] = useState(false);
 
   // AUDIO MANAGEMENT
   useEffect(() => {
@@ -166,30 +167,35 @@ export const App = ({
           bufferAudio(event.data);
         }
       } else {
-        const parsedData = JSON.parse(event.data);
-        console.log("Received message:", parsedData);
+        console.log("Received message:", event.data);
         
-        // Only process EndOfThought if we've completed all questions
-        if (parsedData.type === EventType.END_OF_THOUGHT) {
-          if (currentQuestionIndex.current >= patientIntakeQuestions.length) {
-            setData(event.data);
-            onMessageEvent(event.data);
+        try {
+          const parsedData = JSON.parse(event.data);
+          
+          // Track function calls to monitor question progress
+          if (parsedData.type === "FunctionCalling") {
+            const newIndex = currentQuestionIndex + 1;
+            setCurrentQuestionIndex(newIndex);
+            
+            // Check if we've completed all questions
+            if (newIndex >= patientIntakeQuestions.length) {
+              setIsQuestionnaireComplete(true);
+            }
           }
-          // Otherwise ignore EndOfThought
-          return;
-        }
-        
-        // For all other message types
-        setData(event.data);
-        onMessageEvent(event.data);
-        
-        // Track question progress through function calls
-        if (parsedData.type === "FunctionCalling") {
-          currentQuestionIndex.current++;
+
+          // Only process EndOfThought if questionnaire is complete
+          if (parsedData.type === EventType.END_OF_THOUGHT && !isQuestionnaireComplete) {
+            return; // Ignore EndOfThought until questionnaire is complete
+          }
+
+          setData(event.data);
+          onMessageEvent(event.data);
+        } catch (error) {
+          console.error("Error processing message:", error);
         }
       }
     },
-    [bufferAudio, status, isWaitingForUserVoiceAfterSleep, onMessageEvent],
+    [bufferAudio, status, isWaitingForUserVoiceAfterSleep, onMessageEvent, currentQuestionIndex, isQuestionnaireComplete],
   );
 
   useEffect(() => {
@@ -336,7 +342,8 @@ export const App = ({
         break;
       }
       case EventType.END_OF_THOUGHT:
-        if (currentQuestionIndex.current >= patientIntakeQuestions.length) {
+        // Only record EndOfThought when questionnaire is complete
+        if (isQuestionnaireComplete) {
           addBehindTheScenesEvent({
             type: EventType.END_OF_THOUGHT,
           });
