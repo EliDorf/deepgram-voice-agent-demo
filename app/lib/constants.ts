@@ -1,4 +1,5 @@
 import { type AudioConfig, type StsConfig, type Voice } from "app/utils/deepgramUtils";
+import { type Question } from "./questions";
 
 const audioConfig: AudioConfig = {
   input: {
@@ -16,7 +17,7 @@ const baseConfig = {
   type: "SettingsConfiguration",
   audio: audioConfig,
   agent: {
-    listen: { model: "nova-2" },
+    listen: { model: "nova-3" },
     speak: { model: "aura-asteria-en" },
     think: {
       provider: { type: "open_ai" },
@@ -33,25 +34,39 @@ export const stsConfig: StsConfig = {
       ...baseConfig.agent.think,
       provider: { type: "open_ai", fallback_to_groq: true },
       instructions: `
-                ## Base instructions
-                You are a helpful voice assistant made by Deepgram's engineers.
-                Respond in a friendly, human, conversational manner.
-                YOU MUST answer in 1-2 sentences at most when the message is not empty.
-                Always reply to empty messages with an empty message.
-                Ask follow up questions.
-                Ask one question at a time.
-                Your messages should have no more than than 120 characters.
-                Do not use abbreviations for units.
-                Separate all items in a list with commas.
-                Keep responses unique and free of repetition.
-                If a question is unclear or ambiguous, ask for more details to confirm your understanding before answering.
-                If someone asks how you are, or how you are feeling, tell them.
-                Deepgram gave you a mouth and ears so you can take voice as an input. You can listen and speak.
-                Your name is Voicebot.
-                `,
-      functions: [],
+        You are a friendly and engaging AI Patient Intake Assistant from Bask Health. Your role is to:
+        1. Guide patients through intake questions in a warm, conversational manner
+        2. Ask one question at a time and wait for response
+        3. Confirm understanding of each answer before moving to next question
+        4. Keep responses concise (1-2 sentences)
+        5. Stay focused on the questionnaire topics
+        6. Use natural, friendly language while maintaining professionalism
+        7. If an answer is unclear, politely ask for clarification
+        8. For multiple choice questions, clearly state all options
+        
+        Start by introducing yourself and asking if they're ready to begin the intake process.
+      `,
+      functions: [{
+        name: "record_answer",
+        description: "Stores user answers to intake questions securely.",
+        parameters: {
+          type: "object",
+          properties: {
+            question_id: { type: "string", description: "Unique ID for the question." },
+            answer: { type: "string", description: "User-provided response." }
+          },
+          required: ["question_id", "answer"]
+        }
+      }],
     },
   },
+  context: {
+    messages: [{
+      content: "Hi! I'm your Bask Health intake assistant. I'll be asking you some questions to help us provide the best care possible. Would you like to begin?",
+      role: "assistant"
+    }],
+    replay: true
+  }
 };
 
 // Voice constants
@@ -79,44 +94,14 @@ const voiceOrion: Voice = {
   },
 };
 
-const voiceLuna: Voice = {
-  name: "Luna",
-  canonical_name: "aura-luna-en",
-  metadata: {
-    accent: "American",
-    gender: "Female",
-    image: "https://static.deepgram.com/examples/avatars/luna.jpg",
-    color: "#949498",
-    sample: "https://static.deepgram.com/examples/voices/luna.wav",
-  },
-};
-
-const voiceArcas: Voice = {
-  name: "Arcas",
-  canonical_name: "aura-arcas-en",
-  metadata: {
-    accent: "American",
-    gender: "Male",
-    image: "https://static.deepgram.com/examples/avatars/arcas.jpg",
-    color: "#DD0070",
-    sample: "https://static.deepgram.com/examples/voices/arcas.mp3",
-  },
-};
-
-type NonEmptyArray<T> = [T, ...T[]];
-export const availableVoices: NonEmptyArray<Voice> = [
-  voiceAsteria,
-  voiceOrion,
-  voiceLuna,
-  voiceArcas,
-];
+export const availableVoices = [voiceAsteria, voiceOrion] as const;
 export const defaultVoice: Voice = availableVoices[0];
 
 export const sharedOpenGraphMetadata = {
-  title: "Voice Agent | Deepgram",
+  title: "Patient Intake Assistant | Bask Health",
   type: "website",
   url: "/",
-  description: "Meet Deepgram's Voice Agent API",
+  description: "AI-powered patient intake assistant for a seamless healthcare experience",
 };
 
 export const latencyMeasurementQueryParam = "latency-measurement";

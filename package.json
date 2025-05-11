@@ -1,5 +1,5 @@
 {
-  "name": "deepgram-voicebot",
+  "name": "patient-intake-assistant",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -19,11 +19,13 @@
     "react": "^18",
     "react-device-detect": "^2.2.3",
     "react-dom": "^18",
-    "sass": "^1.77.8"
+    "sass": "^1.77.8",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/node": "20.14.10",
     "@types/react": "18.3.4",
+    "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^7.16.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^8",
