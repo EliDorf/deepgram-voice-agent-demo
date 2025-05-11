@@ -14,7 +14,6 @@ import { isMobile } from "react-device-detect";
 import { usePrevious } from "@uidotdev/usehooks";
 import { useStsQueryParams } from "app/hooks/UseStsQueryParams";
 import RateLimited from "./RateLimited";
-import { patientIntakeQuestions } from "app/lib/questions";
 
 const AnimationManager = dynamic(() => import("./AnimationManager"), {
   ssr: false,
@@ -56,10 +55,11 @@ export const App = ({
   const previousInstructions = usePrevious(instructions);
   const scheduledAudioSources = useRef([]);
   const pathname = usePathname();
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [isQuestionnaireComplete, setIsQuestionnaireComplete] = useState(false);
 
   // AUDIO MANAGEMENT
+  /**
+   * Initialize the audio context for managing and playing audio. (just for TTS playback; user audio input logic found in Microphone Context Provider)
+   */
   useEffect(() => {
     if (!audioContext.current) {
       audioContext.current = new (window.AudioContext || window.webkitAudioContext)({
@@ -72,6 +72,10 @@ export const App = ({
     }
   }, []);
 
+  /**
+   * Callback to handle audio data processing and playback.
+   * Converts raw audio into an AudioBuffer and plays the processed audio through the web audio context
+   */
   const bufferAudio = useCallback((data) => {
     const audioBuffer = createAudioBuffer(audioContext.current, data);
     if (!audioBuffer) return;
@@ -86,14 +90,20 @@ export const App = ({
   };
 
   // MICROPHONE AND SOCKET MANAGEMENT
+  /**
+   * Open the microphone at the very start when there isn't one.
+   * Logic for microphone found in Microphone Context Provider
+   */
   useEffect(() => {
     setupMicrophone();
-  }, [setupMicrophone]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     let wakeLock;
     const requestWakeLock = async () => {
       try {
+        // Wake lock will only be successfully granted if this useEffect is triggered as a result of a user action (a click or tap)
         if ("wakeLock" in navigator) {
           wakeLock = await navigator.wakeLock.request("screen");
         }
@@ -113,27 +123,50 @@ export const App = ({
     };
   }, [isInitialized]);
 
+  /**
+   * Open Deepgram once the microphone opens.
+   * Runs whenever the `microphone` changes state, but exits if no microphone state.
+   * `microphone` is only set once it is ready to open and record audio.
+   */
   useEffect(() => {
     if (microphoneState === 1 && socket && defaultStsConfig) {
+      /**
+       * When the connection to Deepgram opens, the following will happen;
+       *  1. Send the API configuration first.
+       *  3. Start the microphone immediately.
+       *  4. Update the app state to the INITIAL listening state.
+       */
+
       const onOpen = () => {
         const combinedStsConfig = applyParamsToConfig(defaultStsConfig);
+
         sendSocketMessage(socket, combinedStsConfig);
         startMicrophone();
         startListening(true);
         if (pathname === "/") {
+          // This is the "base" demo at /agent
           toggleSleep();
         }
       };
 
       socket.addEventListener("open", onOpen);
 
+      /**
+       * Cleanup function runs before component unmounts. Use this
+       * to deregister/remove event listeners.
+       */
       return () => {
         socket.removeEventListener("open", onOpen);
         microphone.ondataavailable = null;
       };
     }
-  }, [microphone, socket, microphoneState, defaultStsConfig, pathname, applyParamsToConfig, startMicrophone, startListening, toggleSleep]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [microphone, socket, microphoneState, defaultStsConfig, pathname]);
 
+  /**
+   * Performs checks to ensure that the system is ready to proceed with setting up the data transmission
+   * Attaches an event listener to the microphone which sends audio data through the WebSocket as it becomes available
+   */
   useEffect(() => {
     if (!microphone) return;
     if (!socket) return;
@@ -151,6 +184,11 @@ export const App = ({
     }
   }, [status, processor, socket]);
 
+  /**
+   * Create AnalyserNode for user microphone audio context.
+   * Exposes audio time / frequency data which is used in the
+   * AnimationManager to scale the animations in response to user/agent voice
+   */
   useEffect(() => {
     if (microphoneAudioContext) {
       userVoiceAnalyser.current = microphoneAudioContext.createAnalyser();
@@ -160,44 +198,30 @@ export const App = ({
     }
   }, [microphoneAudioContext, microphone]);
 
+  /**
+   * Handles incoming WebSocket messages. Differentiates between ArrayBuffer data and other data types (basically just string type).
+   * */
   const onMessage = useCallback(
     async (event) => {
       if (event.data instanceof ArrayBuffer) {
         if (status !== VoiceBotStatus.SLEEPING && !isWaitingForUserVoiceAfterSleep.current) {
-          bufferAudio(event.data);
+          bufferAudio(event.data); // Process the ArrayBuffer data to play the audio
         }
       } else {
-        console.log("Received message:", event.data);
-        
-        try {
-          const parsedData = JSON.parse(event.data);
-          
-          // Track function calls to monitor question progress
-          if (parsedData.type === "FunctionCalling") {
-            const newIndex = currentQuestionIndex + 1;
-            setCurrentQuestionIndex(newIndex);
-            
-            // Check if we've completed all questions
-            if (newIndex >= patientIntakeQuestions.length) {
-              setIsQuestionnaireComplete(true);
-            }
-          }
-
-          // Only process EndOfThought if questionnaire is complete
-          if (parsedData.type === EventType.END_OF_THOUGHT && !isQuestionnaireComplete) {
-            return; // Ignore EndOfThought until questionnaire is complete
-          }
-
-          setData(event.data);
-          onMessageEvent(event.data);
-        } catch (error) {
-          console.error("Error processing message:", error);
-        }
+        console.log(event?.data);
+        // Handle other types of messages such as strings
+        setData(event.data);
+        onMessageEvent(event.data);
       }
     },
-    [bufferAudio, status, isWaitingForUserVoiceAfterSleep, onMessageEvent, currentQuestionIndex, isQuestionnaireComplete],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [bufferAudio, status],
   );
 
+  /**
+   * Opens Deepgram when the microphone opens.
+   * Runs whenever `microphone` changes state, but exits if no microphone state.
+   */
   useEffect(() => {
     if (
       microphoneState === 1 &&
@@ -206,6 +230,7 @@ export const App = ({
     ) {
       connectToDeepgram();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     microphone,
     socket,
@@ -213,9 +238,11 @@ export const App = ({
     socketState,
     isInitialized,
     requiresUserActionToInitialize,
-    connectToDeepgram,
   ]);
 
+  /**
+   * Sets up a WebSocket message event listener to handle incoming messages through the 'onMessage' callback.
+   */
   useEffect(() => {
     if (socket) {
       socket.addEventListener("message", onMessage);
@@ -241,15 +268,34 @@ export const App = ({
     }
   }, [defaultStsConfig, previousInstructions, instructions, socket, socketState]);
 
+  /**
+   * Manage responses to incoming data from WebSocket.
+   * This useEffect primarily handles string-based data that is expected to represent JSON-encoded messages determining actions based on the nature of the message
+   * */
   useEffect(() => {
+    /**
+     * When the API returns a message event, several possible things can occur.
+     *
+     * 1. If it's a user message, check if it's a wake word or a stop word and add it to the queue.
+     * 2. If it's an agent message, add it to the queue.
+     * 3. If the message type is `AgentAudioDone` switch the app state to `START_LISTENING`
+     */
+
     if (typeof data === "string") {
       const userRole = (data) => {
         const userTranscript = data.content;
+
+        /**
+         * When the user says something, add it to the conversation queue.
+         */
         if (status !== VoiceBotStatus.SLEEPING) {
           addVoicebotMessage({ user: userTranscript });
         }
       };
 
+      /**
+       * When the assistant/agent says something, add it to the conversation queue.
+       */
       const assistantRole = (data) => {
         if (status !== VoiceBotStatus.SLEEPING && !isWaitingForUserVoiceAfterSleep.current) {
           startSpeaking();
@@ -261,17 +307,26 @@ export const App = ({
       try {
         const parsedData = JSON.parse(data);
 
+        /**
+         * Nothing was parsed so return an error.
+         */
         if (!parsedData) {
           throw new Error("No data returned in JSON.");
         }
 
         maybeRecordBehindTheScenesEvent(parsedData);
 
+        /**
+         * If it's a user message.
+         */
         if (parsedData.role === "user") {
           startListening();
           userRole(parsedData);
         }
 
+        /**
+         * If it's an agent message.
+         */
         if (parsedData.role === "assistant") {
           if (status !== VoiceBotStatus.SLEEPING) {
             startSpeaking();
@@ -279,7 +334,16 @@ export const App = ({
           assistantRole(parsedData);
         }
 
+        /**
+         * The agent has finished speaking so we reset the sleep timer.
+         */
         if (parsedData.type === EventType.AGENT_AUDIO_DONE) {
+          // Note: It's not quite correct that the agent goes to the listening state upon receiving
+          // `AgentAudioDone`. When that message is sent, it just means that all of the agent's
+          // audio has arrived at the client, but the client will still be in the process of playing
+          // it, which means the agent is still speaking. In practice, with the way the server
+          // currently sends audio, this means Talon will deem the agent speech finished right when
+          // the agent begins speaking the final sentence of its reply.
           startListening();
         }
         if (parsedData.type === EventType.USER_STARTED_SPEAKING) {
@@ -297,7 +361,8 @@ export const App = ({
         console.error(data, error);
       }
     }
-  }, [data, socket, status, startListening, startSpeaking, addVoicebotMessage, isWaitingForUserVoiceAfterSleep]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, socket]);
 
   const handleVoiceBotAction = () => {
     if (requiresUserActionToInitialize && !isInitialized) {
@@ -342,12 +407,9 @@ export const App = ({
         break;
       }
       case EventType.END_OF_THOUGHT:
-        // Only record EndOfThought when questionnaire is complete
-        if (isQuestionnaireComplete) {
-          addBehindTheScenesEvent({
-            type: EventType.END_OF_THOUGHT,
-          });
-        }
+        addBehindTheScenesEvent({
+          type: EventType.END_OF_THOUGHT,
+        });
         break;
     }
   };
@@ -356,6 +418,7 @@ export const App = ({
     return <RateLimited />;
   }
 
+  // MAIN UI
   return (
     <div className={className}>
       <AnimationManager
@@ -378,10 +441,11 @@ export const App = ({
           {socketState > 0 && status === VoiceBotStatus.SLEEPING && (
             <div className="text-xl flex flex-col items-center justify-center mt-4 mb-10 md:mt-4 md:mb-10">
               <div className="text-gray-450 text-sm">
-                I've stopped listening. {isMobile ? "Tap" : "Click"} the orb to resume.
+                I&apos;ve stopped listening. {isMobile ? "Tap" : "Click"} the orb to resume.
               </div>
             </div>
           )}
+          {/* Transcript Section */}
           <div
             className={`h-20 md:h-12 text-sm md:text-base mt-2 flex flex-col items-center text-gray-200 overflow-y-auto`}
           >
