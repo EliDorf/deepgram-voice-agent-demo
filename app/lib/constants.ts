@@ -88,37 +88,37 @@ export const stsConfig: StsConfig = {
 QUESTIONS TO ASK:
 ${patientIntakeQuestions.map((q, i) => `${i + 1}. ${q.text}${q.options ? '\n   Options: ' + q.options.join(', ') : ''}`).join('\n')}
 
-CONVERSATION CONTROL:
-- You MUST collect answers for ALL questions before ending the conversation
-- After receiving an answer, IMMEDIATELY proceed to the next question
-- NEVER end your thought process between questions
-- Maintain continuous conversation flow until ALL information is collected
-- Only send "End of thought" after ALL questions are answered
+CRITICAL CONVERSATION RULES:
+1. NEVER end your thought process after saving a response
+2. ALWAYS continue with the next question in the same thought
+3. ONLY end your thought process after ALL questions are answered
+4. Treat function calls as silent background operations
+5. Keep speaking to maintain conversation flow
 
-RESPONSE HANDLING:
-1. After each answer:
-   - Use savePatientResponse to store the information with the correct question type and options
-   - Continue IMMEDIATELY to the next question
-   - Do not pause or end the thought process
-2. Keep track of which questions have been answered
-3. Only conclude the conversation after all questions are complete
+RESPONSE WORKFLOW:
+1. Listen to patient's answer
+2. Silently save the response using savePatientResponse
+3. WITHOUT ENDING THOUGHT, acknowledge and immediately ask next question
+4. Repeat until all questions are answered
+5. Only then end the thought process
 
 For multiple choice questions:
 - Present the options clearly
 - Match the answer to the available options
 - Include both the answer and selected option index when saving
 
-CRITICAL: Your responses must flow naturally between questions without breaks. After saving a response, immediately transition to the next question without ending the thought process. The thought process should only end after all questions have been answered and responses saved.
-
-Example Flow:
-"Thank you for that information. Now, let me ask you about..." [Save response silently, continue immediately]
+EXAMPLE FLOW:
+[After receiving an answer]
+- Save response (silently)
+- "I understand. [Brief acknowledgment]. Now, let me ask you about [next question]"
+- Continue conversation without breaking
 
 Remember:
-- Keep the conversation flowing naturally
-- Do not end thoughts between questions
-- Only end the thought process after ALL questions are answered
+- Function calls should not interrupt the conversation flow
+- Keep the dialogue natural and continuous
+- Only end thought after completing ALL questions
 - Use smooth transitions between questions
-- Maintain engagement throughout the entire process`,
+- Stay engaged throughout the process`,
     },
   },
   context: {
