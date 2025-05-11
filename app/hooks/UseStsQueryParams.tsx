@@ -15,7 +15,7 @@ export const useStsQueryParams = () => {
     temp: string | null;
     rep_penalty: string | null;
   }>({
-    voice: searchParams.get("voice") || defaultVoice?.canonical_name || "aura-asteria-en",
+    voice: searchParams.get("voice") || defaultVoice.canonical_name,
     instructions: searchParams.get("instructions"),
     provider: searchParams.get("provider"),
     model: searchParams.get("model"),
@@ -25,7 +25,7 @@ export const useStsQueryParams = () => {
 
   useEffect(() => {
     setParams({
-      voice: searchParams.get("voice") || defaultVoice?.canonical_name || "aura-asteria-en",
+      voice: searchParams.get("voice") || defaultVoice.canonical_name,
       instructions: searchParams.get("instructions"),
       provider: searchParams.get("provider"),
       model: searchParams.get("model"),

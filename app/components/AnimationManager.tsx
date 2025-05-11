@@ -11,19 +11,15 @@ import Hal from "./Hal";
 import { normalizeVolume } from "app/utils/audioUtils";
 
 const useSize = (target: RefObject<HTMLButtonElement> | null) => {
-  const [size, setSize] = useState<DOMRect | null>(null);
+  const [size, setSize] = useState<DOMRect>(new DOMRect());
 
   useLayoutEffect(() => {
-    if (typeof window === 'undefined' || !target?.current) return;
+    if (!target?.current) return;
     setSize(target.current.getBoundingClientRect());
   }, [target]);
 
-  useResizeObserver(target, (entry) => {
-    if (typeof window === 'undefined') return;
-    setSize(entry.contentRect);
-  });
-  
-  return size || new DOMRect(0, 0, 0, 0);
+  useResizeObserver(target, (entry) => setSize(entry.contentRect));
+  return size;
 };
 
 interface Props {
