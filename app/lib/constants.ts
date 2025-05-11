@@ -1,6 +1,10 @@
 import { type AudioConfig, type StsConfig } from "app/utils/deepgramUtils";
 import { type Question } from "./questions";
 
+export const defaultVoice = {
+  canonical_name: "aura-asteria-en"
+};
+
 const audioConfig: AudioConfig = {
   input: {
     encoding: "linear16",
@@ -33,6 +37,7 @@ export const stsConfig: StsConfig = {
     think: {
       ...baseConfig.agent.think,
       provider: { type: "open_ai", fallback_to_groq: true },
+      model: "gpt-4o",
       instructions: `
         You are a friendly and engaging AI Patient Intake Assistant from Bask Health. Your role is to:
         1. Guide patients through intake questions in a warm, conversational manner
@@ -75,5 +80,3 @@ export const sharedOpenGraphMetadata = {
   url: "/",
   description: "AI-powered patient intake assistant for a seamless healthcare experience",
 };
-
-export const latencyMeasurementQueryParam = "latency-measurement";
