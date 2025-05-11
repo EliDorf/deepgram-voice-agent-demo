@@ -3,13 +3,13 @@ import { type AudioConfig, type StsConfig, type Voice } from "app/utils/deepgram
 const audioConfig: AudioConfig = {
   input: {
     encoding: "linear16",
-    sample_rate: 16000,
+    sample_rate: 48000
   },
   output: {
     encoding: "linear16",
     sample_rate: 24000,
-    container: "none",
-  },
+    container: "none"
+  }
 };
 
 const baseConfig = {
@@ -17,10 +17,10 @@ const baseConfig = {
   audio: audioConfig,
   agent: {
     listen: { model: "nova-3" },
-    speak: { model: "aura-asteria-en" },
+    speak: { model: "aura-2-thalia-en" },
     think: {
       provider: { type: "open_ai" },
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
     },
   },
 };
@@ -31,50 +31,39 @@ export const stsConfig: StsConfig = {
     ...baseConfig.agent,
     think: {
       ...baseConfig.agent.think,
-      provider: { type: "open_ai", fallback_to_groq: true },
-      instructions: `You are a friendly and engaging AI assistant. Your goal is to help users by having natural conversations and providing accurate, helpful information.
+      provider: { type: "open_ai" },
+      instructions: `You are an AI Patient Intake Assistant created by Bask Health, meeting with potential patients to smoothly guide them through a set of important questions and encourage them to complete the checkout process efficiently.
 
-Keep responses concise and natural. If you don't know something, say so. Stay focused on the user's needs.
+Patient Intake Questions:
 
-Start by introducing yourself and asking how you can help.`,
+1. Could you please confirm your full name and date of birth?
+2. How much weight do you want to lose?
+3. What is your current height and weight?
+4. Do you have any allergies?
+5. Do you take any current medication?
+6. Have you previously taken the medication you are interested in today?
+
+Interaction Guidelines:
+
+1. Warmly greet the patient and explain briefly the importance of completing these questions for their visit.
+2. Ask each question clearly and encourage responses, offering reassurance if needed.
+3. Briefly confirm that their answers have been recorded accurately before moving to the next question.
+4. Gently redirect any unrelated discussions back to the questionnaire, emphasizing its importance for their care.
+5. After completing all questions, concisely summarize their responses to confirm accuracy.
+6. Guide the patient to complete the checkout process, clearly explaining each step and addressing any questions or concerns they may have.
+7. Thank the patient warmly for their cooperation and reassure them their information will be securely and confidentially stored.
+
+Maintain a friendly, comforting, and patient-focused tone to ensure the patient feels cared for and at ease throughout the interaction.`,
     },
   },
   context: {
     messages: [{
-      content: "Hi! I'm your AI assistant. How can I help you today?",
+      content: "I am going to ask you a series of questions to see what medications are right for you. How does that sound?",
       role: "assistant"
     }],
     replay: true
   }
 };
-
-// Voice constants
-const voiceAsteria: Voice = {
-  name: "Asteria",
-  canonical_name: "aura-asteria-en",
-  metadata: {
-    accent: "American",
-    gender: "Female",
-    image: "https://static.deepgram.com/examples/avatars/asteria.jpg",
-    color: "#7800ED",
-    sample: "https://static.deepgram.com/examples/voices/asteria.wav",
-  },
-};
-
-const voiceOrion: Voice = {
-  name: "Orion",
-  canonical_name: "aura-orion-en",
-  metadata: {
-    accent: "American",
-    gender: "Male",
-    image: "https://static.deepgram.com/examples/avatars/orion.jpg",
-    color: "#83C4FB",
-    sample: "https://static.deepgram.com/examples/voices/orion.mp3",
-  },
-};
-
-export const availableVoices = [voiceAsteria, voiceOrion] as const;
-export const defaultVoice: Voice = availableVoices[0];
 
 export const sharedOpenGraphMetadata = {
   title: "Voice Agent | Deepgram",
