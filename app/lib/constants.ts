@@ -12,6 +12,13 @@ const audioConfig: AudioConfig = {
   }
 };
 
+export const defaultVoice: Voice = {
+  canonical_name: "aura-2-thalia-en",
+  name: "Thalia",
+  language: "en",
+  model: "aura-2"
+};
+
 const baseConfig = {
   type: "SettingsConfiguration",
   audio: audioConfig,
