@@ -1,4 +1,5 @@
 import { type AudioConfig, type StsConfig, type Voice } from "app/utils/deepgramUtils";
+import { patientIntakeQuestions } from "./questions";
 
 const audioConfig: AudioConfig = {
   input: {
@@ -65,6 +66,17 @@ export const stsConfig: StsConfig = {
               questionType: {
                 type: "string",
                 description: "Type of question (multiple_choice or open_ended)"
+              },
+              options: {
+                type: "array",
+                items: {
+                  type: "string"
+                },
+                description: "Available options for multiple choice questions"
+              },
+              selectedOption: {
+                type: "integer",
+                description: "Index of the selected option for multiple choice questions"
               }
             },
             required: ["question", "answer", "questionType"]
@@ -73,14 +85,8 @@ export const stsConfig: StsConfig = {
       ],
       instructions: `You are an AI Patient Intake Assistant created by Bask Health, meeting with potential patients to smoothly guide them through a set of important questions and encourage them to complete the checkout process efficiently.
 
-Patient Intake Questions:
-
-1. Could you please confirm your full name and date of birth?
-2. How much weight do you want to lose?
-3. What is your current height and weight?
-4. Do you have any allergies?
-5. Do you take any current medication?
-6. Have you previously taken the medication you are interested in today?
+QUESTIONS TO ASK:
+${patientIntakeQuestions.map((q, i) => `${i + 1}. ${q.text}${q.options ? '\n   Options: ' + q.options.join(', ') : ''}`).join('\n')}
 
 CONVERSATION CONTROL:
 - You MUST collect answers for ALL questions before ending the conversation
@@ -91,17 +97,21 @@ CONVERSATION CONTROL:
 
 RESPONSE HANDLING:
 1. After each answer:
-   - Silently use savePatientResponse to store the information
+   - Use savePatientResponse to store the information with the correct question type and options
    - Continue IMMEDIATELY to the next question
    - Do not pause or end the thought process
 2. Keep track of which questions have been answered
 3. Only conclude the conversation after all questions are complete
 
+For multiple choice questions:
+- Present the options clearly
+- Match the answer to the available options
+- Include both the answer and selected option index when saving
+
 CRITICAL: Your responses must flow naturally between questions without breaks. After saving a response, immediately transition to the next question without ending the thought process. The thought process should only end after all questions have been answered and responses saved.
 
 Example Flow:
-"Thank you [name]. Let me note that down... Now, about your weight goals..."
-[Save response silently, continue immediately]
+"Thank you for that information. Now, let me ask you about..." [Save response silently, continue immediately]
 
 Remember:
 - Keep the conversation flowing naturally
@@ -113,7 +123,7 @@ Remember:
   },
   context: {
     messages: [{
-      content: "I'm here to help guide you through a few important questions to assist with your intake process.",
+      content: "I'm here to help guide you through some important questions to help with your visit today.",
       role: "assistant"
     }],
     replay: true
