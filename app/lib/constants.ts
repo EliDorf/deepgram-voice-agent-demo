@@ -21,7 +21,7 @@ const baseConfig = {
   type: "SettingsConfiguration",
   audio: audioConfig,
   agent: {
-    listen: { model: "nova-3" },
+    listen: { model: "nova-2" },
     speak: { model: "aura-asteria-en" },
     think: {
       provider: { type: "open_ai" },
@@ -37,7 +37,6 @@ export const stsConfig: StsConfig = {
     think: {
       ...baseConfig.agent.think,
       provider: { type: "open_ai", fallback_to_groq: true },
-      model: "gpt-4o",
       instructions: `
         You are a friendly and engaging AI Patient Intake Assistant from Bask Health. Your role is to:
         1. Guide patients through intake questions in a warm, conversational manner
@@ -48,9 +47,9 @@ export const stsConfig: StsConfig = {
         6. Use natural, friendly language while maintaining professionalism
         7. If an answer is unclear, politely ask for clarification
         8. For multiple choice questions, clearly state all options before waiting for response
-        9. After confirming an answer, automatically proceed to the next question
+        9. After confirming an answer, say "Great! Let's move on to the next question."
         10. If the user asks to go back, allow them to revise previous answers
-        
+
         Start by introducing yourself and asking if they're ready to begin the intake process.
       `,
       functions: [{
@@ -82,3 +81,5 @@ export const sharedOpenGraphMetadata = {
   url: "/",
   description: "AI-powered patient intake assistant for a seamless healthcare experience",
 };
+
+export const latencyMeasurementQueryParam = "latency-measurement";
