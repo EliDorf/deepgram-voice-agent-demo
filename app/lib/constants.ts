@@ -131,10 +131,10 @@ Remember:
 };
 
 export const sharedOpenGraphMetadata = {
-  title: "Voice Agent | Deepgram",
+  title: "Voice Intake Assistant",
   type: "website",
   url: "/",
-  description: "Meet Deepgram's Voice Agent API",
+  description: "AI-powered voice intake assistant for patient onboarding",
 };
 
 export const latencyMeasurementQueryParam = "latency-measurement";

@@ -28,13 +28,13 @@ const favorit = localFont({
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_PATH || "http://localhost:3000"),
-  title: "Voice Agent | Deepgram",
-  description: "Meet Deepgram's Voice Agent API",
+  title: "Voice Intake Assistant",
+  description: "AI-powered voice intake assistant for patient onboarding",
   openGraph: sharedOpenGraphMetadata,
   twitter: {
     card: "summary_large_image",
-    site: "@DeepgramAI",
-    creator: "@DeepgramAI",
+    site: "@BaskHealth",
+    creator: "@BaskHealth",
   },
 };
 
